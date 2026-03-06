@@ -1,5 +1,5 @@
 //
-//  DetailClientView.swift
+//  ClientDetailView.swift
 //  Relayance
 //
 //  Created by Amandine Cousin on 10/07/2024.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct DetailClientView: View {
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-    var client: Client
-    
+struct ClientDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var viewModel: ClientDetailViewModel
+
     var body: some View {
         VStack {
             Image(systemName: "person.circle")
@@ -19,20 +19,20 @@ struct DetailClientView: View {
                 .foregroundStyle(.orange)
                 .padding(50)
             Spacer()
-            Text(client.nom)
+            Text(viewModel.client.name)
                 .font(.title)
                 .padding()
-            Text(client.email)
+            Text(viewModel.client.email)
                 .font(.title3)
-            Text(client.formatDateVersString())
+            Text(viewModel.formattedCreationDate)
                 .font(.title3)
             Spacer()
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Supprimer") {
-                    // suppression
-                    self.presentationMode.wrappedValue.dismiss()
+                    viewModel.deleteClient()
+                    dismiss()
                 }
                 .foregroundStyle(.red)
                 .bold()
@@ -42,5 +42,10 @@ struct DetailClientView: View {
 }
 
 #Preview {
-    DetailClientView(client: Client(nom: "Tata", email: "tata@email", dateCreationString: "20:32 Wed, 30 Oct 2019"))
+    ClientDetailView(
+        viewModel: ClientDetailViewModel(
+            client: Client(name: "Tata", email: "tata@email", creationDateString: "20:32 Wed, 30 Oct 2019"),
+            onDelete: {}
+        )
+    )
 }

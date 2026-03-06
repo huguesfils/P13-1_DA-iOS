@@ -1,5 +1,5 @@
 //
-//  AjoutClientView.swift
+//  AddClientView.swift
 //  Relayance
 //
 //  Created by Amandine Cousin on 10/07/2024.
@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct AjoutClientView: View {
-    @Binding var dismissModal: Bool
-    @State var nom: String = ""
-    @State var email: String = ""
-    
+struct AddClientView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var viewModel: AddClientViewModel
+    @State private var presentAlert: Bool = false
+
     var body: some View {
         VStack {
             Text("Ajouter un nouveau client")
@@ -19,13 +19,16 @@ struct AjoutClientView: View {
                 .bold()
                 .multilineTextAlignment(.center)
             Spacer()
-            TextField("Nom", text: $nom)
+            TextField("Nom", text: $viewModel.name)
                 .font(.title2)
-            TextField("Email", text: $email)
+            TextField("Email", text: $viewModel.email)
                 .font(.title2)
             Button("Ajouter") {
-                //Ajout d'un client
-                dismissModal.toggle()
+                if viewModel.addClient() {
+                    dismiss()
+                } else {
+                    presentAlert = true
+                }
             }
             .padding(.horizontal, 50)
             .padding(.vertical)
@@ -37,9 +40,13 @@ struct AjoutClientView: View {
             Spacer()
         }
         .padding()
+        .alert("Erreur", isPresented: $presentAlert, actions: {
+        }, message: {
+            Text("Veuillez verifier les champs")
+        })
     }
 }
 
 #Preview {
-    AjoutClientView(dismissModal: .constant(false))
+    AddClientView(viewModel: AddClientViewModel(onAdd: { _, _ in }))
 }

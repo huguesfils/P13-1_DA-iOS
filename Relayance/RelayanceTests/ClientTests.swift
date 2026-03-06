@@ -6,28 +6,28 @@ struct ClientTests {
 
     // MARK: - init
 
-    @Test func init_assignsNomEmailAndDateCreationString() {
+    @Test func init_assignsNameEmailAndCreationDateString() {
         // Given
-        let nom = "John Doe"
+        let name = "John Doe"
         let email = "john@example.com"
         let dateString = "2024-01-15"
 
         // When
-        let client = Client(nom: nom, email: email, dateCreationString: dateString)
+        let client = Client(name: name, email: email, creationDateString: dateString)
 
         // Then
-        #expect(client.nom == "John Doe", "nom should be assigned correctly")
+        #expect(client.name == "John Doe", "name should be assigned correctly")
         #expect(client.email == "john@example.com", "email should be assigned correctly")
     }
 
-    // MARK: - dateCreation (computed property)
+    // MARK: - creationDate (computed property)
 
-    @Test func dateCreation_withValidDateString_returnsCorrectDate() {
+    @Test func creationDate_withValidDateString_returnsCorrectDate() {
         // Given
-        let client = Client(nom: "Test", email: "test@test.com", dateCreationString: "2024-06-15")
+        let client = Client(name: "Test", email: "test@test.com", creationDateString: "2024-06-15")
 
         // When
-        let date = client.dateCreation
+        let date = client.creationDate
 
         // Then
         var utcCalendar = Calendar.current
@@ -37,12 +37,12 @@ struct ClientTests {
         #expect(utcCalendar.component(.day, from: date) == 15, "Day should be 15")
     }
 
-    @Test func dateCreation_withInvalidDateString_fallsBackToNow() {
+    @Test func creationDate_withInvalidDateString_fallsBackToNow() {
         // Given
-        let client = Client(nom: "Test", email: "test@test.com", dateCreationString: "invalid")
+        let client = Client(name: "Test", email: "test@test.com", creationDateString: "invalid")
 
         // When
-        let date = client.dateCreation
+        let date = client.creationDate
 
         // Then
         let calendar = Calendar.current
@@ -55,61 +55,61 @@ struct ClientTests {
                 "Should fall back to current day when date string is invalid")
     }
 
-    // MARK: - creerNouveauClient
+    // MARK: - createNewClient
 
-    @Test func creerNouveauClient_setsNomAndEmail() {
+    @Test func createNewClient_setsNameAndEmail() {
         // Given
-        let nom = "Jane Doe"
+        let name = "Jane Doe"
         let email = "jane@example.com"
 
         // When
-        let client = Client.creerNouveauClient(nom: nom, email: email)
+        let client = Client.createNewClient(name: name, email: email)
 
         // Then
-        #expect(client.nom == "Jane Doe", "nom should match the provided value")
+        #expect(client.name == "Jane Doe", "name should match the provided value")
         #expect(client.email == "jane@example.com", "email should match the provided value")
     }
 
-    @Test func creerNouveauClient_setsDateCreationToToday() {
+    @Test func createNewClient_setsCreationDateToToday() {
         // Given / When
-        let client = Client.creerNouveauClient(nom: "Test", email: "test@test.com")
+        let client = Client.createNewClient(name: "Test", email: "test@test.com")
 
         // Then
         let calendar = Calendar.current
         let now = Date.now
-        #expect(calendar.component(.year, from: client.dateCreation) == calendar.component(.year, from: now),
-                "New client dateCreation year should match today")
-        #expect(calendar.component(.month, from: client.dateCreation) == calendar.component(.month, from: now),
-                "New client dateCreation month should match today")
-        #expect(calendar.component(.day, from: client.dateCreation) == calendar.component(.day, from: now),
-                "New client dateCreation day should match today")
+        #expect(calendar.component(.year, from: client.creationDate) == calendar.component(.year, from: now),
+                "New client creationDate year should match today")
+        #expect(calendar.component(.month, from: client.creationDate) == calendar.component(.month, from: now),
+                "New client creationDate month should match today")
+        #expect(calendar.component(.day, from: client.creationDate) == calendar.component(.day, from: now),
+                "New client creationDate day should match today")
     }
 
-    // MARK: - estNouveauClient
+    // MARK: - isNewClient
 
-    @Test func estNouveauClient_whenCreatedToday_returnsTrue() {
+    @Test func isNewClient_whenCreatedToday_returnsTrue() {
         // Given
-        let client = Client.creerNouveauClient(nom: "Nouveau", email: "nouveau@test.com")
+        let client = Client.createNewClient(name: "Nouveau", email: "nouveau@test.com")
 
         // When
-        let result = client.estNouveauClient()
+        let result = client.isNewClient()
 
         // Then
         #expect(result == true, "A client created today should be considered new")
     }
 
-    @Test func estNouveauClient_whenDifferentYear_returnsFalse() {
+    @Test func isNewClient_whenDifferentYear_returnsFalse() {
         // Given
-        let client = Client(nom: "Ancien", email: "ancien@test.com", dateCreationString: "2020-06-15")
+        let client = Client(name: "Ancien", email: "ancien@test.com", creationDateString: "2020-06-15")
 
         // When
-        let result = client.estNouveauClient()
+        let result = client.isNewClient()
 
         // Then
         #expect(result == false, "A client created in a different year should not be new")
     }
 
-    @Test func estNouveauClient_whenSameYearDifferentMonth_returnsFalse() {
+    @Test func isNewClient_whenSameYearDifferentMonth_returnsFalse() {
         // Given
         let calendar = Calendar.current
         let now = Date.now
@@ -117,16 +117,16 @@ struct ClientTests {
         let currentMonth = calendar.component(.month, from: now)
         let differentMonth = currentMonth <= 6 ? currentMonth + 6 : currentMonth - 6
         let dateString = String(format: "%04d-%02d-15", currentYear, differentMonth)
-        let client = Client(nom: "Test", email: "test@test.com", dateCreationString: dateString)
+        let client = Client(name: "Test", email: "test@test.com", creationDateString: dateString)
 
         // When
-        let result = client.estNouveauClient()
+        let result = client.isNewClient()
 
         // Then
         #expect(result == false, "A client created in a different month should not be new")
     }
 
-    @Test func estNouveauClient_whenSameYearAndMonthDifferentDay_returnsFalse() {
+    @Test func isNewClient_whenSameYearAndMonthDifferentDay_returnsFalse() {
         // Given
         let calendar = Calendar.current
         let now = Date.now
@@ -135,82 +135,82 @@ struct ClientTests {
         let currentDay = calendar.component(.day, from: now)
         let differentDay = currentDay >= 15 ? 1 : 28
         let dateString = String(format: "%04d-%02d-%02d", currentYear, currentMonth, differentDay)
-        let client = Client(nom: "Test", email: "test@test.com", dateCreationString: dateString)
+        let client = Client(name: "Test", email: "test@test.com", creationDateString: dateString)
 
         // When
-        let result = client.estNouveauClient()
+        let result = client.isNewClient()
 
         // Then
         #expect(result == false, "A client created on a different day should not be new")
     }
 
-    // MARK: - clientExiste
+    // MARK: - exists
 
-    @Test func clientExiste_whenClientInList_returnsTrue() {
+    @Test func exists_whenClientInList_returnsTrue() {
         // Given
-        let client = Client(nom: "Alice", email: "alice@test.com", dateCreationString: "2024-01-01")
+        let client = Client(name: "Alice", email: "alice@test.com", creationDateString: "2024-01-01")
         let list = [
-            Client(nom: "Bob", email: "bob@test.com", dateCreationString: "2024-01-01"),
+            Client(name: "Bob", email: "bob@test.com", creationDateString: "2024-01-01"),
             client
         ]
 
         // When
-        let result = client.clientExiste(clientsList: list)
+        let result = client.exists(in: list)
 
         // Then
         #expect(result == true, "Should return true when the client is in the list")
     }
 
-    @Test func clientExiste_whenClientNotInList_returnsFalse() {
+    @Test func exists_whenClientNotInList_returnsFalse() {
         // Given
-        let client = Client(nom: "Alice", email: "alice@test.com", dateCreationString: "2024-01-01")
+        let client = Client(name: "Alice", email: "alice@test.com", creationDateString: "2024-01-01")
         let list = [
-            Client(nom: "Bob", email: "bob@test.com", dateCreationString: "2024-01-01")
+            Client(name: "Bob", email: "bob@test.com", creationDateString: "2024-01-01")
         ]
 
         // When
-        let result = client.clientExiste(clientsList: list)
+        let result = client.exists(in: list)
 
         // Then
         #expect(result == false, "Should return false when the client is not in the list")
     }
 
-    @Test func clientExiste_whenListEmpty_returnsFalse() {
+    @Test func exists_whenListEmpty_returnsFalse() {
         // Given
-        let client = Client(nom: "Alice", email: "alice@test.com", dateCreationString: "2024-01-01")
+        let client = Client(name: "Alice", email: "alice@test.com", creationDateString: "2024-01-01")
 
         // When
-        let result = client.clientExiste(clientsList: [])
+        let result = client.exists(in: [])
 
         // Then
         #expect(result == false, "Should return false when the list is empty")
     }
 
-    // MARK: - formatDateVersString
+    // MARK: - formattedCreationDate
 
-    // Note: formatDateVersString contains a `?? self.dateCreationString` fallback
+    // Note: formattedCreationDate contains a `?? self.creationDateString` fallback
     // that is unreachable (dead code) because Date.stringFromDate always returns
     // a non-nil String. This makes 100% branch coverage impossible without
     // refactoring the production code.
 
-    @Test func formatDateVersString_withValidDate_returnsFormattedString() {
+    @Test func formattedCreationDate_withValidDate_returnsFormattedString() {
         // Given
-        let client = Client(nom: "Test", email: "test@test.com", dateCreationString: "2024-06-15")
+        let client = Client(name: "Test", email: "test@test.com", creationDateString: "2024-06-15")
 
         // When
-        let result = client.formatDateVersString()
+        let result = client.formattedCreationDate()
 
         // Then
-        let expected = Date.stringFromDate(client.dateCreation)
+        let expected = Date.stringFromDate(client.creationDate)
         #expect(result == expected, "Should format the creation date as dd-MM-yyyy")
     }
 
-    @Test func formatDateVersString_withInvalidDate_returnsFormattedNow() {
+    @Test func formattedCreationDate_withInvalidDate_returnsFormattedNow() {
         // Given
-        let client = Client(nom: "Test", email: "test@test.com", dateCreationString: "invalid")
+        let client = Client(name: "Test", email: "test@test.com", creationDateString: "invalid")
 
         // When
-        let result = client.formatDateVersString()
+        let result = client.formattedCreationDate()
 
         // Then
         let expected = Date.stringFromDate(Date.now)
